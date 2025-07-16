@@ -1,0 +1,43 @@
+## Registers
+
+# | Register | Usage     | Type    | Description                                      |
+# | -------- | --------- | ------- | ------------------------------------------------ |
+# | `$a0`    | input     | integer | year to check                                    |
+# | `$v0`    | output    | boolean | input is leap year (`0` = `false`, `1` = `true`) |
+# | `$t0-9`  | temporary | any     | used for temporary storage                       |
+
+.globl is_leap_year
+
+is_leap_year:
+    # Check if year is divisible by 4
+    li $t1, 4
+    div $a0, $t1
+    mfhi $t2       # Move the remainder of division to $t2
+    bnez $t2, not_leap_year  # If remainder is not zero, it's not a leap year
+
+    # Check if year is divisible by 100
+    li $t3, 100
+    div $a0, $t3
+    mfhi $t4
+    beqz $t4, check_400  # If divisible by 100, check for divisibility by 400
+
+    # If we reach here, year is a leap year (divisible by 4 but not by 100)
+    li $v0, 1
+    jr $ra
+
+check_400:
+    # Check if year is divisible by 400
+    li $t5, 400
+    div $a0, $t5
+    mfhi $t6
+    bnez $t6, not_leap_year  # If not divisible by 400, it's not a leap year
+
+    # Divisible by 400, it is a leap year
+    li $v0, 1
+    jr $ra
+
+not_leap_year:
+    # Not a leap year
+    li $v0, 0
+    jr $ra
+
